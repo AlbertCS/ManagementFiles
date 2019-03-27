@@ -1,0 +1,232 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+
+#Programador 1: Bernat Bosca Candel
+#Programador 2: Albert Cañellas Solé
+
+#Llibreries
+from Tkinter import *
+import tkMessageBox, ScrolledText
+import algor
+
+#Funcions dels botons
+###################################
+
+#Botó Escollir directori font
+def opendf ():
+	algor.opendirX(dirf,finestra,'Escolliu directori font')
+#Botó Escollir directori destí
+def opendd ():
+	algor.opendirX(dird,finestra,'Escolliu directori destí')
+#Botó Sortir
+def close_window ():
+	finestra.destroy()
+#Botó Cerca
+def find_files ():
+	listOrigin.delete(0, END)			#Netegem la cerca anterior
+	listIguals.delete(0, END)
+	listSemb.delete(0, END)	
+	algor.find_files (dirf, dird, listOrigin, listIguals, listSemb)
+#Botó Selecciona Tots Fitxers Originals
+def select_allOri ():
+	listOrigin.select_set(0, END)
+#Botó Selecciona Cap Fitxers Originals
+def deselect_allOri ():
+	listOrigin.selection_clear(0, END)
+#Botó Selecciona Tots Fitxers Iguals
+def select_allIgu ():
+	listIguals.select_set(0, END)
+#Botó Selecciona Cap Fitxers Iguals
+def deselect_allIgu ():
+	listIguals.selection_clear(0, END)
+#Botó Selecciona Tots Fitxers Semblants
+def select_allSemb ():
+	listSemb.select_set(0, END)
+#Botó Selecciona Cap Fitxers Semblants
+def deselect_allSemb ():
+	listSemb.selection_clear(0, END)
+#Botó Renombra
+def rename ():
+	algor.rename (listSemb, finestra)
+	find_files()
+#Botó esborrar Iguals
+def deleteIgu ():
+	algor.delete(listIguals, 0)
+	find_files()
+#Botó esborrar Semblants
+def deleteSemb ():
+	algor.delete(listSemb, 1)
+	find_files()
+#Botó Hard Link
+def hard_link ():
+	algor.links(listIguals, dird, 0, finestra)
+	find_files()
+#Botó Soft Link
+def soft_link ():
+	algor.links(listIguals, dird, 1, finestra)
+	find_files()
+#Botó compara
+def compara ():
+	algor.links(listSemb, dird, 2, finestra)
+	find_files()
+
+#Interficie
+#######################################
+
+#Finestra MAIN
+finestra=Tk()				#Finestra principal
+finestra.title("Cerca fitxer Reduntants")	#Titol de la finestra
+finestra.minsize(660,500)			#Dimencions de la finestra
+dirf=StringVar()				#Barra per al directori font
+dird=StringVar()				#Barra per al directori destí
+dirf.set("/home/milax")
+dird.set("/home/milax")
+
+#primer frame (escollir font)
+f1=Frame(finestra)
+bt1=Button(f1,text='Escolliu directori font',command=opendf, width=18) 
+bt1.pack(side=LEFT)
+l1=Label(f1, textvariable=dirf, relief=SUNKEN)
+l1.pack(side=RIGHT, expand=1, fill=X)
+f1.pack(side=TOP, fill=X)
+
+#segon frame (escollir desti)
+f2=Frame(finestra)
+bt2=Button(f2,text='Escolliu directori destí',command=opendd, width=18) 
+bt2.pack(side=LEFT)
+bt3=Button(f2, text='Cerca',command=find_files)
+bt3.pack(side=RIGHT)
+l2=Label(f2, textvariable=dird, relief=SUNKEN)
+l2.pack(side=RIGHT, expand=1, fill=X)
+f2.pack(side=TOP, fill=X)
+
+fX=Frame(finestra)
+
+#tercer+quart frame (fitxers originals)
+f3=Frame(fX)
+lf=Label(f3, text=' ')
+lf.pack(side=LEFT)
+lf2=Label(f3, text=' ')
+lf2.pack(side=RIGHT)
+l3=Label(f3, text='Fitxers Originals:')
+l3.pack(anchor=W, side=TOP)
+f3u=Frame(f3)
+scrollistOrigin=Scrollbar(f3u, orient=VERTICAL)
+listOrigin=Listbox(f3u, yscrollcommand=scrollistOrigin.set, selectmode=MULTIPLE, width=32)
+scrollistOrigin.config(command=listOrigin.yview)
+scrollistOrigin.pack(side=RIGHT, fill=Y)
+listOrigin.pack(side=TOP, expand=1, fill=BOTH)
+f3u.pack(side=TOP, expand=1, fill=BOTH)
+f3.pack(side=LEFT, fill=BOTH)
+
+#Provando cosas
+f3_4=Frame(fX)
+lff=Label(f3_4, text='\t ')
+lff.pack(side=RIGHT)
+f3_4.pack(side=RIGHT)
+
+#cuart frame (fitxers iguals)
+f4=Frame(fX)
+f4u=Frame(f4)
+f4tres=Frame(f4)
+l4=Label(f4tres, text='Fitxers Iguals:', padx=15)
+l4.pack(side=LEFT)
+f4tres.pack(side=TOP, anchor=W)
+scrollistIguals=Scrollbar(f4u, orient=VERTICAL)
+listIguals=Listbox(f4u, yscrollcommand=scrollistIguals.set, selectmode=MULTIPLE)
+scrollistIguals.config(command=listIguals.yview)
+scrollistIguals.pack(side=LEFT, fill=Y)
+listIguals.pack(side=TOP, expand=1, fill=BOTH)
+f4u.pack(side=LEFT, expand=1, fill=BOTH)
+
+
+f4dos=Frame(f4)	#frame dels botons de fitxers iguals
+
+fbt4_es=Frame(f4dos)
+bt4_es=Button(fbt4_es, text='Esborra', command=deleteIgu)
+bt4_es.pack(side=LEFT)
+fbt4_es.pack(side=TOP, anchor=W)
+
+fbt4_hl=Frame(f4dos)
+bt4_hl=Button(fbt4_hl, text='Hard Link', command=hard_link)
+bt4_hl.pack(side=LEFT)
+fbt4_hl.pack(side=TOP, anchor=W)
+
+fbt4_sl=Frame(f4dos)
+bt4_sl=Button(fbt4_sl, text='Soft Link', command=soft_link)
+bt4_sl.pack(side=LEFT)
+fbt4_sl.pack(side=TOP, anchor=W)
+
+fbt4_st=Frame(f4dos)
+bt4_st=Button(fbt4_st, text='Selec Tots', command=select_allIgu)
+bt4_st.pack(side=LEFT)
+fbt4_st.pack(side=TOP, anchor=W)
+
+fbt4_sc=Frame(f4dos)
+bt4_sc=Button(fbt4_sc, text='Selec Cap', command=deselect_allIgu)
+bt4_sc.pack(side=LEFT)
+fbt4_sc.pack(side=TOP, anchor=W)
+
+f4dos.pack(side=LEFT, anchor=CENTER)
+f4.pack(side=TOP, expand=1, fill=BOTH)
+
+
+#cinque frame (fitxers semblants)
+f5=Frame(fX)
+f5u=Frame(f5)
+f5tres=Frame(f5)
+l5=Label(f5tres, text='Fitxers Semblants:', padx=15)
+l5.pack(side=LEFT)
+f5tres.pack(side=TOP, anchor=W)
+scrollistSemb=Scrollbar(f5u, orient=VERTICAL)
+listSemb=Listbox(f5u, yscrollcommand=scrollistSemb.set, selectmode=MULTIPLE)
+scrollistSemb.config(command=listSemb.yview)
+scrollistSemb.pack(side=LEFT, fill=Y)
+listSemb.pack(side=TOP, expand=1, fill=BOTH)
+f5u.pack(side=LEFT, expand=1, fill=BOTH)
+
+f5dos=Frame(f5)	#frame dels botons de fitxers semblants
+fbt5_co=Frame(f5dos)
+bt5_co=Button(fbt5_co, text='Compara', command=compara)
+bt5_co.pack(side=LEFT)
+fbt5_co.pack(side=TOP, anchor=W)
+
+fbt5_re=Frame(f5dos)
+bt5_re=Button(fbt5_re, text='Renombra', command=rename)
+bt5_re.pack(side=LEFT)
+fbt5_re.pack(side=TOP, anchor=W)
+
+fbt5_es=Frame(f5dos)
+bt5_es=Button(fbt5_es, text='Esborra', command=deleteSemb)
+bt5_es.pack(side=LEFT)
+fbt5_es.pack(side=TOP, anchor=W)
+
+fbt5_st=Frame(f5dos)
+bt5_st=Button(fbt5_st, text='Selec Tots', command=select_allSemb)
+bt5_st.pack(side=LEFT)
+fbt5_st.pack(side=TOP, anchor=W)
+
+fbt5_sc=Frame(f5dos)
+bt5_sc=Button(fbt5_sc, text='Selec Cap', command=deselect_allSemb)
+bt5_sc.pack(side=LEFT)
+fbt5_sc.pack(side=TOP, anchor=W)
+
+f5dos.pack(side=LEFT, anchor=CENTER)
+f5.pack(side=TOP, expand=1, fill=BOTH)
+
+fX.pack(side=TOP, expand=1, fill=BOTH)
+
+#sise frame (label blanc)
+f6X=Frame(finestra)
+bt6=Button(f6X, text='Sortir', command=close_window)
+bt6.pack(side=BOTTOM)
+f6X.pack(side=BOTTOM, anchor=W)
+f6=Frame(finestra)
+bt4=Button(f6, text='Selecciona Tots', command=select_allOri)
+bt4.pack(side=LEFT)
+bt5=Button(f6, text='Selecciona Cap', command=deselect_allOri)
+bt5.pack(side=LEFT)
+f6.pack(side=LEFT, expand=1, fill=BOTH)
+
+
+finestra.mainloop()
